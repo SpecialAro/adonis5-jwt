@@ -261,7 +261,7 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
         /**
          * Normalize options with defaults
          */
-        let { expiresIn, refreshTokenExpiresIn, name, payload, ...meta } = Object.assign(
+        let { expiresIn, refreshTokenExpiresIn, name, payload, rememberMe, ...meta } = Object.assign(
             { name: "JWT Access Token" },
             options
         );
@@ -294,7 +294,7 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
         /**
          * Generate a JWT and refresh token
          */
-        const tokenInfo = await this.generateTokenForPersistance(expiresIn, refreshTokenExpiresIn, payload);
+        const tokenInfo = await this.generateTokenForPersistance(expiresIn, refreshTokenExpiresIn, payload, rememberMe);
 
         let providerToken;
         if (!this.config.persistJwt) {
@@ -413,13 +413,16 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
     private async generateTokenForPersistance(
         expiresIn?: string | number,
         refreshTokenExpiresIn?: string | number,
-        payload: any = {}
+        payload: any = {},
+        rememberMe: boolean = false
     ) {
         if (!expiresIn) {
             expiresIn = this.config.jwtDefaultExpire;
         }
         if (!refreshTokenExpiresIn) {
-            refreshTokenExpiresIn = this.config.refreshTokenDefaultExpire;
+            refreshTokenExpiresIn = rememberMe
+                ? this.config.refreshTokenRememberExpire
+                : this.config.refreshTokenDefaultExpire;
         }
 
         let accessTokenBuilder = new SignJWT({ data: payload }).setProtectedHeader({ alg: "RS256" }).setIssuedAt();
@@ -439,6 +442,12 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
 
         const refreshToken = uuidv4();
         const refreshTokenHash = this.generateHash(refreshToken);
+
+        if (rememberMe) {
+            this.ctx.response.cookie("refreshToken", refreshTokenHash, {
+                expires: this.getExpiresAtDate(refreshTokenExpiresIn)?.toJSDate(),
+            });
+        }
 
         return {
             accessToken,
