@@ -444,7 +444,7 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
         const refreshTokenHash = this.generateHash(refreshToken);
 
         if (rememberMe) {
-            this.ctx.response.cookie("refreshToken", refreshTokenHash, {
+            this.ctx.response.cookie(this.config.cookieName || "__refreshToken", refreshTokenHash, {
                 expires: this.getExpiresAtDate(refreshTokenExpiresIn)?.toJSDate(),
             });
         }
