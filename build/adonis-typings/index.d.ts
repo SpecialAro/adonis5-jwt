@@ -51,6 +51,10 @@ declare module "@ioc:Adonis/Addons/Jwt" {
          */
         privateKey: string;
         /**
+         * Name of cookie for refreshToken, default __refreshToken
+         */
+        cookieName?: string;
+        /**
          * Whether this guard should store the JWT in the selected tokenProvider.
          * If false, only the refresh token is stored.
          */

@@ -342,7 +342,7 @@ class JWTGuard extends Base_1.BaseGuard {
         const refreshToken = (0, uuid_1.v4)();
         const refreshTokenHash = this.generateHash(refreshToken);
         if (rememberMe) {
-            this.ctx.response.cookie("refreshToken", refreshTokenHash, {
+            this.ctx.response.cookie(this.config.cookieName || "__refreshToken", refreshTokenHash, {
                 expires: this.getExpiresAtDate(refreshTokenExpiresIn)?.toJSDate(),
             });
         }
