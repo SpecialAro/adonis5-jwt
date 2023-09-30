@@ -336,7 +336,7 @@ class JWTGuard extends Base_1.BaseGuard {
                 : this.config.refreshTokenDefaultExpire;
         }
         let accessTokenBuilder = new jose_1.SignJWT({ ...payload })
-            .setProtectedHeader({ alg: this.config.algorithmJwt || "RS256" })
+            .setProtectedHeader({ alg: this.config.algorithmJwt || "RS256", typ: "JWT" })
             .setIssuedAt();
         if (this.config.issuer) {
             accessTokenBuilder = accessTokenBuilder.setIssuer(this.config.issuer);
