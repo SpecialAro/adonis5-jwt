@@ -189,7 +189,7 @@ class JWTGuard extends Base_1.BaseGuard {
         /**
          * Normalize options with defaults
          */
-        let { expiresIn, refreshTokenExpiresIn, name, payload, rememberMe, ...meta } = Object.assign({ name: "JWT Access Token" }, options);
+        let { algorithm, expiresIn, refreshTokenExpiresIn, name, payload, rememberMe, ...meta } = Object.assign({ name: "JWT Access Token" }, options);
         /**
          * Since the login method is not exposed to the end user, we cannot expect
          * them to instantiate and pass an instance of provider user, so we
@@ -303,6 +303,10 @@ class JWTGuard extends Base_1.BaseGuard {
     }
     async getPrivateKey() {
         const key = this.config.privateKey;
+        if (key === undefined) {
+            const secret = new TextEncoder().encode(this.config.secret);
+            return secret;
+        }
         if (key.startsWith("-----BEGIN PRIVATE KEY-----")) {
             return this.generateKey(key);
         }
@@ -310,6 +314,10 @@ class JWTGuard extends Base_1.BaseGuard {
     }
     async getPublicKey() {
         const key = this.config.publicKey;
+        if (key === undefined) {
+            const secret = new TextEncoder().encode(this.config.secret);
+            return secret;
+        }
         if (key.startsWith("-----BEGIN PUBLIC KEY-----")) {
             return this.generateKey(key);
         }
@@ -327,7 +335,9 @@ class JWTGuard extends Base_1.BaseGuard {
                 ? this.config.refreshTokenRememberExpire
                 : this.config.refreshTokenDefaultExpire;
         }
-        let accessTokenBuilder = new jose_1.SignJWT({ data: payload }).setProtectedHeader({ alg: "RS256" }).setIssuedAt();
+        let accessTokenBuilder = new jose_1.SignJWT({ ...payload })
+            .setProtectedHeader({ alg: this.config.algorithmJwt || "RS256" })
+            .setIssuedAt();
         if (this.config.issuer) {
             accessTokenBuilder = accessTokenBuilder.setIssuer(this.config.issuer);
         }

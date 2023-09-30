@@ -17,6 +17,7 @@ declare module "@ioc:Adonis/Addons/Jwt" {
      */
     type JWTLoginOptions = {
         name?: string;
+        algorithm?: string;
         expiresIn?: number | string;
         refreshTokenExpiresIn?: number | string;
         rememberMe?: boolean;
@@ -43,13 +44,17 @@ declare module "@ioc:Adonis/Addons/Jwt" {
          */
         audience?: string;
         /**
+         * Secret to sign the token
+         */
+        secret?: string;
+        /**
          * Public key to sign the token
          */
-        publicKey: string;
+        publicKey?: string;
         /**
          * Private key to sign the token
          */
-        privateKey: string;
+        privateKey?: string;
         /**
          * Name of cookie for refreshToken, default __refreshToken
          */
@@ -87,6 +92,10 @@ declare module "@ioc:Adonis/Addons/Jwt" {
          * Algorithm used to generate key pair
          */
         algorithm?: string;
+        /**
+         * Algorithm used to generate sign JWT
+         */
+        algorithmJwt?: string;
     };
     /**
      * JWT token is generated during the login call by the JWTGuard.

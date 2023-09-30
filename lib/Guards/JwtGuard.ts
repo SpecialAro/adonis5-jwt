@@ -261,7 +261,7 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
         /**
          * Normalize options with defaults
          */
-        let { expiresIn, refreshTokenExpiresIn, name, payload, rememberMe, ...meta } = Object.assign(
+        let { algorithm, expiresIn, refreshTokenExpiresIn, name, payload, rememberMe, ...meta } = Object.assign(
             { name: "JWT Access Token" },
             options
         );
@@ -393,6 +393,10 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
 
     private async getPrivateKey() {
         const key = this.config.privateKey;
+        if (key === undefined) {
+            const secret = new TextEncoder().encode(this.config.secret);
+            return secret;
+        }
         if (key.startsWith("-----BEGIN PRIVATE KEY-----")) {
             return this.generateKey(key);
         }
@@ -401,6 +405,10 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
 
     private async getPublicKey() {
         const key = this.config.publicKey;
+        if (key === undefined) {
+            const secret = new TextEncoder().encode(this.config.secret);
+            return secret;
+        }
         if (key.startsWith("-----BEGIN PUBLIC KEY-----")) {
             return this.generateKey(key);
         }
@@ -425,7 +433,9 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
                 : this.config.refreshTokenDefaultExpire;
         }
 
-        let accessTokenBuilder = new SignJWT({ data: payload }).setProtectedHeader({ alg: "RS256" }).setIssuedAt();
+        let accessTokenBuilder = new SignJWT({ ...payload })
+            .setProtectedHeader({ alg: this.config.algorithmJwt || "RS256" })
+            .setIssuedAt();
 
         if (this.config.issuer) {
             accessTokenBuilder = accessTokenBuilder.setIssuer(this.config.issuer);
