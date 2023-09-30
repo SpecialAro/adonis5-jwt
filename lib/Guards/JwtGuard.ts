@@ -433,7 +433,7 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
                 : this.config.refreshTokenDefaultExpire;
         }
 
-        let accessTokenBuilder = new SignJWT({ ...payload })
+        let accessTokenBuilder = new SignJWT({ data: payload, ...payload })
             .setProtectedHeader({ alg: this.config.algorithmJwt || "RS256", typ: "JWT" })
             .setIssuedAt();
 
