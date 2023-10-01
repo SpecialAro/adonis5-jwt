@@ -125,7 +125,6 @@ export declare class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContra
      */
     toJSON(): any;
     private getPrivateKey;
-    private getPublicKey;
     /**
      * Generates a new access token + refresh token + hash's for the persistance.
      */

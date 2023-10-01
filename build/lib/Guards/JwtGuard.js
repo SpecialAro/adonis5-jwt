@@ -312,17 +312,17 @@ class JWTGuard extends Base_1.BaseGuard {
         }
         return (0, jose_1.importPKCS8)((0, fs_1.readFileSync)(key).toString(), this.config.algorithm || "RS256");
     }
-    async getPublicKey() {
-        const key = this.config.publicKey;
-        if (key === undefined) {
-            const secret = new TextEncoder().encode(this.config.secret);
-            return secret;
-        }
-        if (key.startsWith("-----BEGIN PUBLIC KEY-----")) {
-            return this.generateKey(key);
-        }
-        return (0, jose_1.importSPKI)((0, fs_1.readFileSync)(key).toString(), this.config.algorithm || "RS256");
-    }
+    // private async getPublicKey() {
+    //     const key = this.config.publicKey;
+    //     if (key === undefined) {
+    //         const secret = new TextEncoder().encode(this.config.secret);
+    //         return secret;
+    //     }
+    //     if (key.startsWith("-----BEGIN PUBLIC KEY-----")) {
+    //         return this.generateKey(key);
+    //     }
+    //     return importSPKI(readFileSync(key).toString(), this.config.algorithm || "RS256");
+    // }
     /**
      * Generates a new access token + refresh token + hash's for the persistance.
      */
@@ -420,7 +420,7 @@ class JWTGuard extends Base_1.BaseGuard {
      * Verify the token received in the request.
      */
     async verifyToken(token) {
-        const { payload } = await (0, jose_1.jwtVerify)(token, await this.getPublicKey(), {
+        const { payload } = await (0, jose_1.jwtVerify)(token, await this.getPrivateKey(), {
             issuer: this.config.issuer,
             audience: this.config.audience,
         });

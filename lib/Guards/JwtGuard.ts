@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-import { SignJWT, jwtVerify, importPKCS8, importSPKI } from "jose";
+import { SignJWT, jwtVerify, importPKCS8 } from "jose";
 import { errors as JWTErrors } from "jose";
 import { v4 as uuidv4 } from "uuid";
 import { GetProviderRealUser, ProviderTokenContract, UserProviderContract } from "@ioc:Adonis/Addons/Auth";
@@ -403,17 +403,17 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
         return importPKCS8(readFileSync(key).toString(), this.config.algorithm || "RS256");
     }
 
-    private async getPublicKey() {
-        const key = this.config.publicKey;
-        if (key === undefined) {
-            const secret = new TextEncoder().encode(this.config.secret);
-            return secret;
-        }
-        if (key.startsWith("-----BEGIN PUBLIC KEY-----")) {
-            return this.generateKey(key);
-        }
-        return importSPKI(readFileSync(key).toString(), this.config.algorithm || "RS256");
-    }
+    // private async getPublicKey() {
+    //     const key = this.config.publicKey;
+    //     if (key === undefined) {
+    //         const secret = new TextEncoder().encode(this.config.secret);
+    //         return secret;
+    //     }
+    //     if (key.startsWith("-----BEGIN PUBLIC KEY-----")) {
+    //         return this.generateKey(key);
+    //     }
+    //     return importSPKI(readFileSync(key).toString(), this.config.algorithm || "RS256");
+    // }
 
     /**
      * Generates a new access token + refresh token + hash's for the persistance.
@@ -531,7 +531,7 @@ export class JWTGuard extends BaseGuard<"jwt"> implements JWTGuardContract<any, 
      * Verify the token received in the request.
      */
     private async verifyToken(token: string): Promise<JWTCustomPayload> {
-        const { payload } = await jwtVerify(token, await this.getPublicKey(), {
+        const { payload } = await jwtVerify(token, await this.getPrivateKey(), {
             issuer: this.config.issuer,
             audience: this.config.audience,
         });
